@@ -56,25 +56,30 @@ export const Dashboard: React.FC = () => {
     halfway: 'Mitad (+30%)',
     delivered: 'Entregado (+40%)',
   };
-  const phaseBreakdown = ['demo', 'mvp', 'halfway', 'delivered'].map(phase => {
-    const amount = projects
-      .filter(p => p.phase === phase && p.status !== 'archived')
-      .reduce((sum, p) => {
-        const paymentForPhase = p.payments.find(pay => pay.phase === phase);
-        const amount = paymentForPhase ? paymentForPhase.amount : 0;
-        const converted = convert(amount, p.currency, 'USD', rates);
-        return sum + converted;
-      }, 0);
-    const expected = projects
-      .filter(p => p.phase === phase && p.status !== 'archived')
-      .reduce((sum, p) => {
-        const price = p.price || 0;
-        const phasePercent = phase === 'demo' ? 0 : phase === 'mvp' ? 0.30 : phase === 'halfway' ? 0.60 : 1.0;
-        const prevPhasePercent = phase === 'demo' ? 0 : phase === 'mvp' ? 0 : phase === 'halfway' ? 0.30 : 0.60;
-        const expected = price * (phasePercent - prevPhasePercent);
-        const converted = convert(expected, p.currency, 'USD', rates);
-        return sum + converted;
-      }, 0);
+  const PHASE_ORDER = ['demo', 'mvp', 'halfway', 'delivered'];
+  const PHASE_PERCENT: Record<string, number> = { demo: 0, mvp: 0.30, halfway: 0.60, delivered: 1.0 };
+  const PHASE_STEP: Record<string, number> = { demo: 0, mvp: 0.30, halfway: 0.30, delivered: 0.40 };
+
+  const phaseBreakdown = PHASE_ORDER.map(phase => {
+    const phaseIdx = PHASE_ORDER.indexOf(phase);
+    const activeProjects = projects.filter(p => p.status !== 'archived');
+
+    const amount = activeProjects.reduce((sum, p) => {
+      const paymentForPhase = p.payments.find(pay => pay.phase === phase);
+      if (!paymentForPhase) return sum;
+      const converted = convert(paymentForPhase.amount, p.currency, 'USD', rates);
+      return sum + converted;
+    }, 0);
+
+    const expected = activeProjects.reduce((sum, p) => {
+      const projectPhaseIdx = PHASE_ORDER.indexOf(p.phase);
+      if (projectPhaseIdx < phaseIdx) return sum;
+      const price = p.price || 0;
+      const stepAmount = price * PHASE_STEP[phase];
+      const converted = convert(stepAmount, p.currency, 'USD', rates);
+      return sum + converted;
+    }, 0);
+
     return { phase, label: phaseLabels[phase], collected: amount, expected };
   });
 
