@@ -4,7 +4,6 @@ export interface Client {
   company?: string;
   email?: string;
   whatsapp?: string;
-  stack?: string;
   notes?: string;
   color?: string;
   createdAt: string;

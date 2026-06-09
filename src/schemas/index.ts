@@ -6,7 +6,6 @@ export const ClientSchema = z.object({
   company: z.string().optional(),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   whatsapp: z.string().optional(),
-  stack: z.string().optional(),
   notes: z.string().optional(),
   color: z.string().optional(),
   createdAt: z.string().optional(),

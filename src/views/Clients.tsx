@@ -45,7 +45,7 @@ export const Clients: React.FC = () => {
   );
 
   const openForm = (client?: Client) => {
-    setEditingClient(client || { name: '', email: '', company: '', whatsapp: '', stack: '', notes: '' });
+    setEditingClient(client || { name: '', email: '', company: '', whatsapp: '', notes: '' });
     setFormErrors({});
     setIsModalOpen(true);
   };
@@ -123,7 +123,6 @@ export const Clients: React.FC = () => {
             const activeProjects = projects.filter(p => p.clientId === c.id && p.status === 'active').length;
             const initials = getInitials(c.name);
             const color = getColorForId(c.id);
-            const stacks = (c.stack || '').split(',').map(s => s.trim()).filter(Boolean);
 
             return (
               <Card key={c.id} className={styles.card}>
@@ -149,9 +148,6 @@ export const Clients: React.FC = () => {
                   {c.email && <a href={`mailto:${c.email}`}><Mail size={14}/> {c.email}</a>}
                   {c.whatsapp && <a href={`https://wa.me/${c.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noreferrer"><MessageCircle size={14}/> WhatsApp</a>}
                 </div>
-                <div className={styles.stacks}>
-                  {stacks.map(s => <span key={s} className={styles.chip}>{s}</span>)}
-                </div>
                 <div className={styles.footer}>
                   <strong>{activeProjects}</strong> proyecto(s) activo(s)
                 </div>
@@ -176,9 +172,8 @@ export const Clients: React.FC = () => {
           <form className={styles.form}>
             <Input label="Nombre Completo *" value={editingClient.name || ''} onChange={e => setEditingClient({...editingClient, name: e.target.value})} error={formErrors.name} />
             <Input label="Empresa" value={editingClient.company || ''} onChange={e => setEditingClient({...editingClient, company: e.target.value})} />
-            <Input label="Email *" type="email" value={editingClient.email || ''} onChange={e => setEditingClient({...editingClient, email: e.target.value})} error={formErrors.email} />
+            <Input label="Email" type="email" value={editingClient.email || ''} onChange={e => setEditingClient({...editingClient, email: e.target.value})} error={formErrors.email} />
             <Input label="WhatsApp" value={editingClient.whatsapp || ''} onChange={e => setEditingClient({...editingClient, whatsapp: e.target.value})} placeholder="+58..." />
-            <Input label="Stack Tecnológico (comas)" value={editingClient.stack || ''} onChange={e => setEditingClient({...editingClient, stack: e.target.value})} />
             <Input label="Notas" multiline value={editingClient.notes || ''} onChange={e => setEditingClient({...editingClient, notes: e.target.value})} />
           </form>
         )}
