@@ -35,12 +35,13 @@ interface AppState {
   tasks: Task[];
   ideas: Idea[];
   notes: Note[];
+  lastModifiedAt: string | null;
 
   addClient: (client: CreateInput<Client>) => void;
   updateClient: (id: string, client: Partial<Client>) => void;
   deleteClient: (id: string) => void;
 
-  addProject: (project: CreateInput<Project>) => void;
+  addProject: (project: CreateInput<Project>) => string;
   updateProject: (id: string, project: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   updateProjectStatus: (id: string, status: Project['status']) => void;
@@ -80,31 +81,44 @@ const useAppStore = create<AppState>()(
       tasks: [],
       ideas: [],
       notes: [],
+      lastModifiedAt: null,
 
       addClient: (data) => set(state => {
         state.clients.push(addEntity(state.clients, data));
+        state.lastModifiedAt = now();
       }),
       updateClient: (id, data) => set(state => {
         updateEntity(state.clients, id, data);
+        state.lastModifiedAt = now();
       }),
       deleteClient: (id) => set(state => {
         state.clients = state.clients.filter(c => c.id !== id);
+        state.lastModifiedAt = now();
       }),
 
-      addProject: (data) => set(state => {
-        state.projects.push(addEntity(state.projects, data));
-      }),
+      addProject: (data) => {
+        const id = generateId();
+        const timestamp = now();
+        set(state => {
+          state.projects.push({ ...data, id, createdAt: timestamp, updatedAt: timestamp } as Project);
+          state.lastModifiedAt = timestamp;
+        });
+        return id;
+      },
       updateProject: (id, data) => set(state => {
         updateEntity(state.projects, id, data);
+        state.lastModifiedAt = now();
       }),
       deleteProject: (id) => set(state => {
         state.projects = state.projects.filter(p => p.id !== id);
         state.entries = state.entries.filter(e => e.projectId !== id);
         state.tasks = state.tasks.filter(t => t.projectId !== id);
+        state.lastModifiedAt = now();
       }),
       updateProjectStatus: (id, status) => set(state => {
         const p = state.projects.find(p => p.id === id);
         if (p) { p.status = status; p.updatedAt = now(); }
+        state.lastModifiedAt = now();
       }),
       reorderProjects: (activeId, overId) => set(state => {
         const oldIndex = state.projects.findIndex(p => p.id === activeId);
@@ -113,20 +127,25 @@ const useAppStore = create<AppState>()(
         const [moved] = state.projects.splice(oldIndex, 1);
         state.projects.splice(newIndex, 0, moved);
         state.projects.forEach((p, i) => { p.order = i; p.updatedAt = now(); });
+        state.lastModifiedAt = now();
       }),
 
       addEntry: (data) => set(state => {
         state.entries.push(addEntity(state.entries, data));
+        state.lastModifiedAt = now();
       }),
       updateEntry: (id, data) => set(state => {
         updateEntity(state.entries, id, data);
+        state.lastModifiedAt = now();
       }),
       deleteEntry: (id) => set(state => {
         state.entries = state.entries.filter(e => e.id !== id);
+        state.lastModifiedAt = now();
       }),
       toggleEntryResolved: (id) => set(state => {
         const e = state.entries.find(e => e.id === id);
         if (e) { e.resolved = !e.resolved; e.updatedAt = now(); }
+        state.lastModifiedAt = now();
       }),
 
       addTask: (data) => set(state => {
@@ -195,6 +214,7 @@ const useAppStore = create<AppState>()(
         if (data.tasks) state.tasks = data.tasks;
         if (data.ideas) state.ideas = data.ideas;
         if (data.notes) state.notes = data.notes;
+        state.lastModifiedAt = now();
       }),
       clearData: () => set(state => {
         state.clients = [];
@@ -203,6 +223,7 @@ const useAppStore = create<AppState>()(
         state.tasks = [];
         state.ideas = [];
         state.notes = [];
+        state.lastModifiedAt = now();
       }),
     })),
     {

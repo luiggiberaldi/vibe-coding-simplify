@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -26,6 +26,18 @@ export const Clients: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientForm | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const close = () => setOpenMenuId(null);
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, []);
 
   const filteredClients = clients.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -122,11 +134,15 @@ export const Clients: React.FC = () => {
                     <span>{c.company || 'Independiente'}</span>
                   </div>
                   <div className={styles.menu}>
-                    <Button variant="ghost" className={styles.menuBtn} icon={<MoreVertical size={16}/>} />
-                    <div className={styles.dropdown}>
-                      <button onClick={() => openForm(c)}><Edit2 size={14}/> Editar</button>
-                      <button className={styles.danger} onClick={() => handleDelete(c.id, c.name)}><Trash2 size={14}/> Eliminar</button>
-                    </div>
+                    <Button variant="ghost" className={styles.menuBtn} icon={<MoreVertical size={16}/>}
+                      onClick={(e) => { e.stopPropagation(); setOpenMenuId(c.id === openMenuId ? null : c.id); }}
+                    />
+                    {openMenuId === c.id && (
+                      <div className={styles.dropdown}>
+                        <button onClick={() => { openForm(c); setOpenMenuId(null); }}><Edit2 size={14}/> Editar</button>
+                        <button className={styles.danger} onClick={() => { handleDelete(c.id, c.name); setOpenMenuId(null); }}><Trash2 size={14}/> Eliminar</button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className={styles.contact}>

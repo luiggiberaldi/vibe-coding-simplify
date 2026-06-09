@@ -1,12 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useUIStore } from '../../store/useUIStore';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { LayoutDashboard, Users, FolderOpen, Lightbulb, FileText, BarChart2, Moon, Sun } from 'lucide-react';
 import { RatesPanel } from '../ui/RatesPanel';
 import styles from './Sidebar.module.css';
 
 export const Sidebar: React.FC = () => {
   const { theme, toggleTheme, isSidebarOpen, toggleSidebar } = useUIStore();
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -20,22 +22,22 @@ export const Sidebar: React.FC = () => {
         </div>
         
         <nav className={styles.nav}>
-          <NavLink to="/" end className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/" end className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <LayoutDashboard size={20} /> Dashboard
           </NavLink>
-          <NavLink to="/clients" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/clients" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <Users size={20} /> Clientes
           </NavLink>
-          <NavLink to="/projects" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/projects" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <FolderOpen size={20} /> Proyectos
           </NavLink>
-          <NavLink to="/ideas" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/ideas" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <Lightbulb size={20} /> Ideas
           </NavLink>
-          <NavLink to="/notes" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/notes" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <FileText size={20} /> Notas
           </NavLink>
-          <NavLink to="/stats" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => window.innerWidth <= 768 && toggleSidebar()}>
+          <NavLink to="/stats" className={({isActive}) => `${styles.navItem} ${isActive ? styles.active : ''}`} onClick={() => isMobile && toggleSidebar()}>
             <BarChart2 size={20} /> Estadísticas
           </NavLink>
         </nav>

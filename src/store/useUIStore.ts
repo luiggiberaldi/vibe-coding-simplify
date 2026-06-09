@@ -26,6 +26,7 @@ interface UIState {
   confirm: ConfirmState;
   rates: RatesData | null;
   ratesLoading: boolean;
+  lastExportedAt: string | null;
   
   toggleTheme: () => void;
   toggleSidebar: () => void;
@@ -37,6 +38,7 @@ interface UIState {
   closeConfirm: () => void;
   setRates: (rates: RatesData) => void;
   setRatesLoading: (loading: boolean) => void;
+  setLastExportedAt: (date: string) => void;
 }
 
 const getInitialTheme = (): 'dark' | 'light' => {
@@ -51,6 +53,11 @@ const getInitialProjectsViewMode = (): 'list' | 'kanban' => {
   return saved === 'kanban' ? 'kanban' : 'list';
 }
 
+const getInitialLastExportedAt = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('pf-last-exported');
+};
+
 export const useUIStore = create<UIState>((set) => ({
   theme: getInitialTheme(),
   isSidebarOpen: false,
@@ -59,6 +66,7 @@ export const useUIStore = create<UIState>((set) => ({
   toasts: [],
   rates: null,
   ratesLoading: false,
+  lastExportedAt: getInitialLastExportedAt(),
   confirm: {
     isOpen: false,
     title: '',
@@ -99,4 +107,10 @@ export const useUIStore = create<UIState>((set) => ({
   
   setRates: (rates) => set({ rates }),
   setRatesLoading: (loading) => set({ ratesLoading: loading }),
+  setLastExportedAt: (date) => {
+    set({ lastExportedAt: date });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pf-last-exported', date);
+    }
+  },
 }));

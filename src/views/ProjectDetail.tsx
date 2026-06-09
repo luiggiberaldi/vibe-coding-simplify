@@ -11,7 +11,8 @@ import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { daysBetween, formatDate, relativeTime } from '../utils/formatters';
 import { getInitials, getColorForId } from '../utils/generators';
-import { exportToMarkdown, exportToPDF } from '../utils/exporters';
+import { exportToMarkdown } from '../utils/exporters';
+import { exportProjectToPDF } from '../utils/pdfExporter';
 import { Download, FileText, CheckCircle, Circle, Edit2, Trash2, Plus, ArrowLeft, MoreVertical, Printer, FolderOpen, Play, Pause } from 'lucide-react';
 import { Entry, Task, Project } from '../types';
 import { EntrySchema, TaskSchema, EntryForm, TaskForm } from '../schemas';
@@ -182,7 +183,7 @@ export const ProjectDetail: React.FC = () => {
           </div>
           <div className={styles.actions}>
             <Button variant="outline" onClick={handleExportMD} icon={<Download size={16}/>}>MD</Button>
-            <Button variant="outline" onClick={exportToPDF} icon={<Printer size={16}/>}>PDF</Button>
+            <Button variant="outline" onClick={() => exportProjectToPDF(p, c, pEntries, pTasks)} icon={<Printer size={16}/>}>PDF</Button>
             {activeTab === 'entries' ? (
               <Button onClick={() => openEntryForm()} icon={<Plus size={16}/>}>Nueva Entrada</Button>
             ) : (

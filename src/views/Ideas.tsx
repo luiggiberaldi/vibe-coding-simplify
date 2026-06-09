@@ -9,9 +9,8 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Lightbulb, Plus, Trash2, ArrowRight } from 'lucide-react';
-import { Idea, Project } from '../types';
+import { Idea } from '../types';
 import { relativeTime } from '../utils/formatters';
-import { generateId } from '../utils/generators';
 import { IdeaSchema, IdeaForm } from '../schemas';
 import styles from './Ideas.module.css';
 
@@ -91,24 +90,17 @@ export const Ideas: React.FC = () => {
     const idea = ideas.find(i => i.id === convertData.ideaId);
     if (!idea) return;
 
-    const newProjectId = generateId();
-    const now = new Date().toISOString();
-    
-    const newProject: Project = {
-      id: newProjectId,
+    const newProjectId = addProject({
       clientId: convertData.clientId,
       name: idea.title,
       description: idea.description,
       status: 'active',
       currency: 'USD',
       price: convertData.price,
-      startDate: now.split('T')[0],
+      startDate: new Date().toISOString().split('T')[0],
       techStack: idea.tags?.join(', ') || '',
-      createdAt: now,
-      updatedAt: now,
-    };
+    });
 
-    addProject(newProject);
     convertIdeaToProject(idea.id, newProjectId);
     setIsConvertModalOpen(false);
     addToast('Idea convertida a proyecto', 'success');

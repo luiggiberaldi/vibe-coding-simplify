@@ -1,11 +1,12 @@
 import { RatesData } from './exchangeRates';
 import { useUIStore } from '../store/useUIStore';
 
+// Actualizado: 2026-06-09. Regenerar periódicamente.
 const FALLBACK_RATES: Record<string, Record<string, number>> = {
-  USD: { EUR: 0.92, VES: 36.5, USDT: 1, USD: 1 },
-  EUR: { USD: 1.09, VES: 39.7, USDT: 1, EUR: 1 },
-  VES: { USD: 0.027, EUR: 0.025, USDT: 0.027, VES: 1 },
-  USDT: { USD: 1, EUR: 0.92, VES: 36.5, USDT: 1 },
+  USD: { EUR: 0.92, VES: 90.5, USDT: 1, USD: 1 },
+  EUR: { USD: 1.09, VES: 97.0, USDT: 1, EUR: 1 },
+  VES: { USD: 0.011, EUR: 0.010, USDT: 0.011, VES: 1 },
+  USDT: { USD: 1, EUR: 0.92, VES: 90.5, USDT: 1 },
 };
 
 export function convert(amount: number, from: string, to: string, rates?: RatesData | null): number {

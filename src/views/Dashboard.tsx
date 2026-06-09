@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button';
 import { FolderOpen, Users, AlertCircle, Clock, Activity, Zap, Trash2, DollarSign, Download, Upload } from 'lucide-react';
 import { daysBetween, relativeTime } from '../utils/formatters';
 import { exportToJSON, importFromJSON } from '../utils/exporters';
+import { convert } from '../utils/currency';
 import { Link } from 'react-router-dom';
 import { useResponsiveCanvas } from '../hooks/useResponsiveCanvas';
 import styles from './Dashboard.module.css';
@@ -21,7 +22,12 @@ export const Dashboard: React.FC = () => {
 
   const activeProjects = projects.filter(p => p.status === 'active');
   const delivered = projects.filter(p => p.status === 'delivered');
-  const totalRevenue = delivered.reduce((sum, p) => sum + (p.price || 0), 0);
+  const rates = useUIStore(s => s.rates);
+  const totalRevenue = delivered.reduce((sum, p) => {
+    const amount = p.price || 0;
+    const converted = convert(amount, p.currency, 'USD', rates);
+    return sum + converted;
+  }, 0);
   const unresolvedEntriesToday = entries.filter(e =>
     !e.resolved && new Date(e.createdAt).toDateString() === new Date().toDateString()
   );
@@ -59,6 +65,11 @@ export const Dashboard: React.FC = () => {
   };
 
   const drawBarChart = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const style = getComputedStyle(document.documentElement);
+    const borderColor = style.getPropertyValue('--color-border').trim() || '#30363d';
+    const primaryColor = style.getPropertyValue('--color-primary').trim() || '#58a6ff';
+    const textMutedColor = style.getPropertyValue('--color-text-muted').trim() || '#8b949e';
+
     const months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date();
       d.setMonth(d.getMonth() - (5 - i));
@@ -76,7 +87,7 @@ export const Dashboard: React.FC = () => {
     const chartH = height - padY * 2;
     const barW = chartW / 6 - 8;
 
-    ctx.strokeStyle = '#30363d';
+    ctx.strokeStyle = borderColor;
     ctx.beginPath();
     ctx.moveTo(padX, padY);
     ctx.lineTo(padX, height - padY);
@@ -90,14 +101,21 @@ export const Dashboard: React.FC = () => {
       const barH = (m.value / maxVal) * chartH;
       const x = padX + 5 + i * (chartW / 6);
       const y = height - padY - barH;
-      ctx.fillStyle = 'rgba(88, 166, 255, 0.8)';
+      ctx.fillStyle = primaryColor + 'cc';
       ctx.fillRect(x, y, barW, barH);
-      ctx.fillStyle = '#8b949e';
+      ctx.fillStyle = textMutedColor;
       ctx.fillText(m.label, x + barW / 2, height - padY + 14);
     });
   }, [delivered]);
 
   const drawDonutChart = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const style = getComputedStyle(document.documentElement);
+    const activeColor = style.getPropertyValue('--color-active').trim() || '#3fb950';
+    const pausedColor = style.getPropertyValue('--color-paused').trim() || '#d29922';
+    const deliveredColor = style.getPropertyValue('--color-delivered').trim() || '#58a6ff';
+    const archivedColor = style.getPropertyValue('--color-archived').trim() || '#484f58';
+    const surfaceColor = style.getPropertyValue('--color-surface').trim() || '#161b22';
+
     const stats = {
       active: activeProjects.length,
       paused: projects.filter(p => p.status === 'paused').length,
@@ -110,7 +128,7 @@ export const Dashboard: React.FC = () => {
     const cx = width / 2;
     const cy = height / 2;
     const radius = Math.min(cx, cy) - 10;
-    const colors: Record<string, string> = { active: '#3fb950', paused: '#d29922', delivered: '#58a6ff', archived: '#484f58' };
+    const colors: Record<string, string> = { active: activeColor, paused: pausedColor, delivered: deliveredColor, archived: archivedColor };
 
     let currentAngle = -Math.PI / 2;
     Object.entries(stats).forEach(([key, val]) => {
@@ -125,12 +143,13 @@ export const Dashboard: React.FC = () => {
     });
     ctx.beginPath();
     ctx.arc(cx, cy, radius * 0.6, 0, 2 * Math.PI);
-    ctx.fillStyle = '#161b22';
+    ctx.fillStyle = surfaceColor;
     ctx.fill();
   }, [activeProjects, delivered, projects]);
 
-  const barRef = useResponsiveCanvas(drawBarChart, [delivered]);
-  const donutRef = useResponsiveCanvas(drawDonutChart, [projects]);
+  const theme = useUIStore(s => s.theme);
+  const barRef = useResponsiveCanvas(drawBarChart, [delivered, theme]);
+  const donutRef = useResponsiveCanvas(drawDonutChart, [projects, theme]);
 
   return (
     <div className={styles.container}>
@@ -164,7 +183,7 @@ export const Dashboard: React.FC = () => {
         <Card className={styles.kpiCard}>
           <div className={styles.kpiIcon} style={{ color: 'var(--color-success)' }}><DollarSign /></div>
           <div>
-            <div className={styles.kpiValue}>{totalRevenue.toLocaleString()}</div>
+            <div className={styles.kpiValue}>{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ≈ USD</div>
             <div className={styles.kpiLabel}>Ingresos Totales</div>
           </div>
         </Card>
@@ -194,10 +213,10 @@ export const Dashboard: React.FC = () => {
                 <canvas ref={donutRef} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
-                <span style={{ color: '#3fb950' }}>■ Activos ({activeProjects.length})</span>
-                <span style={{ color: '#d29922' }}>■ Pausados ({projects.filter(p => p.status === 'paused').length})</span>
-                <span style={{ color: '#58a6ff' }}>■ Entregados ({delivered.length})</span>
-                <span style={{ color: '#484f58' }}>■ Archivados ({projects.filter(p => p.status === 'archived').length})</span>
+                <span style={{ color: 'var(--color-active)' }}>■ Activos ({activeProjects.length})</span>
+                <span style={{ color: 'var(--color-paused)' }}>■ Pausados ({projects.filter(p => p.status === 'paused').length})</span>
+                <span style={{ color: 'var(--color-delivered)' }}>■ Entregados ({delivered.length})</span>
+                <span style={{ color: 'var(--color-archived)' }}>■ Archivados ({projects.filter(p => p.status === 'archived').length})</span>
               </div>
             </div>
           )}
