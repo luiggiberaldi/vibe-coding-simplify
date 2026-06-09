@@ -8,7 +8,7 @@ import { Badge } from '../components/ui/Badge';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
-import { Folder, Plus, LayoutList, Columns, Edit2, Archive } from 'lucide-react';
+import { Folder, Plus, LayoutList, Columns, Edit2, Archive, ChevronRight } from 'lucide-react';
 import { daysBetween } from '../utils/formatters';
 import { Project } from '../types';
 import { ProjectSchema, ProjectForm } from '../schemas';
@@ -97,6 +97,7 @@ export const Projects: React.FC = () => {
   const addProject = useAppStore(s => s.addProject);
   const updateProject = useAppStore(s => s.updateProject);
   const updateProjectStatus = useAppStore(s => s.updateProjectStatus);
+  const advanceProjectPhase = useAppStore(s => s.advanceProjectPhase);
   const reorderProjects = useAppStore(s => s.reorderProjects);
   const projectsViewMode = useUIStore(s => s.projectsViewMode);
   const setProjectsViewMode = useUIStore(s => s.setProjectsViewMode);
@@ -121,6 +122,20 @@ export const Projects: React.FC = () => {
     { id: 'delivered', label: 'Entregados' },
     { id: 'archived', label: 'Archivados' },
   ];
+
+  const phaseLabels: Record<string, string> = {
+    demo: 'Demo',
+    mvp: 'MVP',
+    halfway: 'Mitad',
+    delivered: 'Entregado',
+  };
+
+  const phaseColors: Record<string, string> = {
+    demo: 'var(--color-text-muted)',
+    mvp: 'var(--color-primary)',
+    halfway: 'var(--color-warning)',
+    delivered: 'var(--color-success)',
+  };
 
   let filteredProjects = projects.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
   if (filter !== 'all') {
@@ -204,6 +219,17 @@ export const Projects: React.FC = () => {
         <div className={styles.clientName}>{c?.name || 'Sin cliente'}</div>
         <div className={styles.price}>{p.price?.toLocaleString()} {p.currency}</div>
 
+        <div className={styles.phaseRow}>
+          <span className={styles.phaseLabel} style={{ color: phaseColors[p.phase] }}>
+            {phaseLabels[p.phase]}
+          </span>
+          <div className={styles.phaseProgress}>
+            {['demo', 'mvp', 'halfway', 'delivered'].map((phase, i) => (
+              <span key={phase} className={`${styles.phaseStep} ${p.phase === phase ? styles.current : ''} ${['demo', 'mvp', 'halfway'].indexOf(p.phase) >= i ? styles.completed : ''}`} />
+            ))}
+          </div>
+        </div>
+
         {projectsViewMode === 'list' && (
           <div className={styles.stacks}>
             {stack.slice(0, 3).map(s => <span key={s} className={styles.chip}>{s}</span>)}
@@ -218,7 +244,14 @@ export const Projects: React.FC = () => {
 
         <div className={styles.actions}>
           <Button variant="ghost" onClick={(e) => { e.stopPropagation(); e.preventDefault(); openForm(p); }} icon={<Edit2 size={14} />} />
-          {p.status !== 'archived' && (
+          {p.status !== 'archived' && p.phase !== 'delivered' && (
+            <Button variant="primary" size="sm" onClick={(e) => { 
+              e.stopPropagation(); 
+              e.preventDefault(); 
+              advanceProjectPhase(p.id); 
+            }} icon={<ChevronRight size={14} />}>Avanzar</Button>
+          )}
+          {p.status !== 'archived' && p.phase !== 'delivered' ? null : (
             <Button variant="ghost" onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleArchive(p); }} icon={<Archive size={14} />} />
           )}
         </div>

@@ -20,6 +20,12 @@ export const ProjectSchema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
   description: z.string().optional(),
   status: z.enum(['active', 'paused', 'delivered', 'archived']).default('active'),
+  phase: z.enum(['demo', 'mvp', 'halfway', 'delivered']).default('demo'),
+  payments: z.array(z.object({
+    phase: z.enum(['demo', 'mvp', 'halfway', 'delivered']),
+    amount: z.number(),
+    date: z.string(),
+  })).default([]),
   techStack: z.string().optional(),
   price: z.number().min(0).default(0),
   currency: z.enum(['USD', 'EUR', 'VES', 'USDT']).default('USD'),

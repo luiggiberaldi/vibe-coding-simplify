@@ -4,7 +4,7 @@ import { useUIStore } from '../store/useUIStore';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { FolderOpen, Users, AlertCircle, Clock, Activity, Zap, Trash2, DollarSign, Download, Upload } from 'lucide-react';
+import { FolderOpen, Users, AlertCircle, Clock, Activity, Zap, Trash2, DollarSign, Download, Upload, ChevronRight } from 'lucide-react';
 import { daysBetween, relativeTime } from '../utils/formatters';
 import { exportToJSON, importFromJSON } from '../utils/exporters';
 import { convert } from '../utils/currency';
@@ -23,11 +23,61 @@ export const Dashboard: React.FC = () => {
   const activeProjects = projects.filter(p => p.status === 'active');
   const delivered = projects.filter(p => p.status === 'delivered');
   const rates = useUIStore(s => s.rates);
+
+  // Revenue from delivered projects (full price)
   const totalRevenue = delivered.reduce((sum, p) => {
     const amount = p.price || 0;
     const converted = convert(amount, p.currency, 'USD', rates);
     return sum + converted;
   }, 0);
+
+  // Total collected from all payments across all projects (converted to USD)
+  const totalCollected = projects.reduce((sum, p) => {
+    const projectTotal = p.payments.reduce((s, pay) => s + pay.amount, 0);
+    const converted = convert(projectTotal, p.currency, 'USD', rates);
+    return sum + converted;
+  }, 0);
+
+  // Total pending = sum of (price - collected) for all active/paused projects
+  const totalPending = projects
+    .filter(p => p.status === 'active' || p.status === 'paused')
+    .reduce((sum, p) => {
+      const price = p.price || 0;
+      const collected = p.payments.reduce((s, pay) => s + pay.amount, 0);
+      const pending = Math.max(0, price - collected);
+      const converted = convert(pending, p.currency, 'USD', rates);
+      return sum + converted;
+    }, 0);
+
+  // Breakdown by phase
+  const phaseLabels: Record<string, string> = {
+    demo: 'Demo (0%)',
+    mvp: 'MVP (+30%)',
+    halfway: 'Mitad (+30%)',
+    delivered: 'Entregado (+40%)',
+  };
+  const phaseBreakdown = ['demo', 'mvp', 'halfway', 'delivered'].map(phase => {
+    const amount = projects
+      .filter(p => p.phase === phase && p.status !== 'archived')
+      .reduce((sum, p) => {
+        const paymentForPhase = p.payments.find(pay => pay.phase === phase);
+        const amount = paymentForPhase ? paymentForPhase.amount : 0;
+        const converted = convert(amount, p.currency, 'USD', rates);
+        return sum + converted;
+      }, 0);
+    const expected = projects
+      .filter(p => p.phase === phase && p.status !== 'archived')
+      .reduce((sum, p) => {
+        const price = p.price || 0;
+        const phasePercent = phase === 'demo' ? 0 : phase === 'mvp' ? 0.30 : phase === 'halfway' ? 0.60 : 1.0;
+        const prevPhasePercent = phase === 'demo' ? 0 : phase === 'mvp' ? 0 : phase === 'halfway' ? 0.30 : 0.60;
+        const expected = price * (phasePercent - prevPhasePercent);
+        const converted = convert(expected, p.currency, 'USD', rates);
+        return sum + converted;
+      }, 0);
+    return { phase, label: phaseLabels[phase], collected: amount, expected };
+  });
+
   const unresolvedEntriesToday = entries.filter(e =>
     !e.resolved && new Date(e.createdAt).toDateString() === new Date().toDateString()
   );
@@ -184,7 +234,21 @@ export const Dashboard: React.FC = () => {
           <div className={styles.kpiIcon} style={{ color: 'var(--color-success)' }}><DollarSign /></div>
           <div>
             <div className={styles.kpiValue}>{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ≈ USD</div>
-            <div className={styles.kpiLabel}>Ingresos Totales</div>
+            <div className={styles.kpiLabel}>Ingresos (Entregados)</div>
+          </div>
+        </Card>
+        <Card className={styles.kpiCard}>
+          <div className={styles.kpiIcon} style={{ color: 'var(--color-success)' }}><DollarSign /></div>
+          <div>
+            <div className={styles.kpiValue}>{totalCollected.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ≈ USD</div>
+            <div className={styles.kpiLabel}>Cobrado Total</div>
+          </div>
+        </Card>
+        <Card className={styles.kpiCard}>
+          <div className={styles.kpiIcon} style={{ color: 'var(--color-warning)' }}><DollarSign /></div>
+          <div>
+            <div className={styles.kpiValue}>{totalPending.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ≈ USD</div>
+            <div className={styles.kpiLabel}>Pendiente por Cobrar</div>
           </div>
         </Card>
         <Card className={styles.kpiCard}>
@@ -192,6 +256,25 @@ export const Dashboard: React.FC = () => {
           <div>
             <div className={styles.kpiValue}>{nearDeadline.length}</div>
             <div className={styles.kpiLabel}>Deadlines próximos</div>
+          </div>
+        </Card>
+      </div>
+
+      <div className={styles.phaseBreakdown}>
+        <Card>
+          <h3 className={styles.sectionTitle}>Cobros por Fase</h3>
+          <div className={styles.phaseList}>
+            {phaseBreakdown.map(({ phase, label, collected, expected }) => (
+              <div key={phase} className={styles.phaseItem}>
+                <div className={styles.phaseInfo}>
+                  <span className={styles.phaseName}>{label}</span>
+                  <span className={styles.phaseCollected}>{collected.toFixed(2)} / {expected.toFixed(2)} USD</span>
+                </div>
+                <div className={styles.phaseBar}>
+                  <div className={styles.phaseBarFill} style={{ width: expected > 0 ? `${(collected / expected) * 100}%` : '0%' }} />
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       </div>

@@ -73,6 +73,89 @@
   .entryTitle { font-size: var(--text-lg); }
 }
 
+.phasePanel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+.phaseItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  position: relative;
+  z-index: 2;
+}
+.phaseStep {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-border);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.phaseItem.completed .phaseStep {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+.phaseItem.current .phaseStep {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.stepNumber {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: #fff;
+}
+.phaseInfo { flex: 1; min-width: 0; }
+.phaseName { font-weight: 600; font-size: var(--text-sm); }
+.phaseName.current { color: var(--color-primary); }
+.currentBadge {
+  font-size: 9px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: var(--radius-full);
+  margin-left: var(--space-1);
+  text-transform: uppercase;
+}
+.phaseAmount { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; }
+.phaseAmount .paid { color: var(--color-success); }
+.phaseAmount .expected { color: var(--color-warning); }
+.paidDate { color: var(--color-text-muted); margin-left: 4px; }
+.phaseConnector {
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+  z-index: 1;
+}
+.paymentSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-3);
+}
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+}
+.summaryRow:last-child { padding-top: 4px; border-top: 1px solid var(--color-border); }
+.paidAmount { color: var(--color-success); }
+.pendingAmount { color: var(--color-warning); }
+.advanceBtn { width: 100%; margin-top: var(--space-2); }
+
 @media print {
   :global(.no-print) { display: none !important; }
   .container { gap: 0; }

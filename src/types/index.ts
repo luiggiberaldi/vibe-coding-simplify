@@ -10,12 +10,22 @@ export interface Client {
   updatedAt: string;
 }
 
+export type ProjectPhase = 'demo' | 'mvp' | 'halfway' | 'delivered';
+
+export interface ProjectPayment {
+  phase: ProjectPhase;
+  amount: number;
+  date: string;
+}
+
 export interface Project {
   id: string;
   clientId: string;
   name: string;
   description?: string;
   status: 'active' | 'paused' | 'delivered' | 'archived';
+  phase: ProjectPhase;
+  payments: ProjectPayment[];
   techStack?: string;
   price?: number;
   currency: 'USD' | 'EUR' | 'VES' | 'USDT';

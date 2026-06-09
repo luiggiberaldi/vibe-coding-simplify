@@ -118,6 +118,15 @@
   align-items: center;
 }
 
+.phaseBreakdown { margin-top: var(--space-2); }
+.phaseList { display: flex; flex-direction: column; gap: var(--space-3); }
+.phaseItem { display: flex; flex-direction: column; gap: var(--space-1); }
+.phaseInfo { display: flex; justify-content: space-between; align-items: center; }
+.phaseName { font-size: var(--text-sm); font-weight: 500; }
+.phaseCollected { font-size: var(--text-xs); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.phaseBar { height: 6px; background: var(--color-border); border-radius: var(--radius-full); overflow: hidden; }
+.phaseBarFill { height: 100%; background: var(--color-primary); border-radius: var(--radius-full); transition: width var(--transition); }
+
 @media (min-width: 768px) {
   .kpiGrid {
     grid-template-columns: repeat(4, 1fr);

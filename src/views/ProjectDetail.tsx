@@ -13,8 +13,8 @@ import { daysBetween, formatDate, relativeTime } from '../utils/formatters';
 import { getInitials, getColorForId } from '../utils/generators';
 import { exportToMarkdown } from '../utils/exporters';
 import { exportProjectToPDF } from '../utils/pdfExporter';
-import { Download, FileText, CheckCircle, Circle, Edit2, Trash2, Plus, ArrowLeft, MoreVertical, Printer, FolderOpen, Play, Pause } from 'lucide-react';
-import { Entry, Task, Project } from '../types';
+import { Download, FileText, CheckCircle, Circle, Edit2, Trash2, Plus, ArrowLeft, MoreVertical, Printer, FolderOpen, Play, Pause, ChevronRight, DollarSign } from 'lucide-react';
+import { Entry, Task, Project, ProjectPhase } from '../types';
 import { EntrySchema, TaskSchema, EntryForm, TaskForm } from '../schemas';
 import styles from './ProjectDetail.module.css';
 
@@ -69,6 +69,7 @@ export const ProjectDetail: React.FC = () => {
   const entries = useAppStore(s => s.entries);
   const tasks = useAppStore(s => s.tasks);
   const updateProjectStatus = useAppStore(s => s.updateProjectStatus);
+  const advanceProjectPhase = useAppStore(s => s.advanceProjectPhase);
   const addEntry = useAppStore(s => s.addEntry);
   const updateEntry = useAppStore(s => s.updateEntry);
   const deleteEntry = useAppStore(s => s.deleteEntry);
@@ -232,10 +233,74 @@ export const ProjectDetail: React.FC = () => {
                 <p className={styles.desc}>{p.description}</p>
               </div>
             )}
-            
+
+            <div className={styles.section}>
+              <h4>Fases y Pagos</h4>
+              <div className={styles.phasePanel}>
+                {['demo', 'mvp', 'halfway', 'delivered'].map((phase: ProjectPhase, i) => {
+                  const isCurrent = p.phase === phase;
+                  const isCompleted = ['demo', 'mvp', 'halfway'].indexOf(p.phase) >= i;
+                  const percentage = [0, 0.30, 0.60, 1.0][i];
+                  const expectedAmount = Math.round((p.price || 0) * percentage);
+                  const paidForPhase = p.payments.find(pay => pay.phase === phase);
+                  const isPaid = !!paidForPhase;
+                  return (
+                    <div key={phase} className={`${styles.phaseItem} ${isCurrent ? styles.current : ''} ${isCompleted ? styles.completed : ''}`}>
+                      <div className={styles.phaseStep}>
+                        <span className={styles.stepNumber}>{i + 1}</span>
+                      </div>
+                      <div className={styles.phaseInfo}>
+                        <div className={`${styles.phaseName} ${isCurrent ? styles.current : ''}`}>
+                          {phase.charAt(0).toUpperCase() + phase.slice(1)}
+                          {isCurrent && <span className={styles.currentBadge}>Actual</span>}
+                        </div>
+                        <div className={styles.phaseAmount}>
+                          {expectedAmount > 0 && (
+                            <>
+                              <span className={isPaid ? styles.paid : styles.expected}>
+                                {isPaid ? 'Cobrado' : 'Por cobrar'}: {expectedAmount.toLocaleString()} {p.currency}
+                              </span>
+                              {isPaid && paidForPhase && (
+                                <span className={styles.paidDate}>({formatDate(paidForPhase.date)})</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className={styles.phaseConnector} />
+              </div>
+              
+              <div className={styles.paymentSummary}>
+                <div className={styles.summaryRow}>
+                  <span>Total precio:</span>
+                  <strong>{(p.price || 0).toLocaleString()} {p.currency}</strong>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Cobrado:</span>
+                  <strong className={styles.paidAmount}>{p.payments.reduce((sum, pay) => sum + pay.amount, 0).toLocaleString()} {p.currency}</strong>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Pendiente:</span>
+                  <strong className={styles.pendingAmount}>{((p.price || 0) - p.payments.reduce((sum, pay) => sum + pay.amount, 0)).toLocaleString()} {p.currency}</strong>
+                </div>
+              </div>
+
+              {p.phase !== 'delivered' && p.status !== 'archived' && (
+                <Button variant="primary" className={styles.advanceBtn} onClick={() => advanceProjectPhase(p.id)} icon={<ChevronRight size={14} />}>Avanzar Fase</Button>
+              )}
+            </div>
+
             <div className={`no-print ${styles.statusChanger}`}>
-              {['active', 'paused', 'delivered', 'archived'].map(s => (
-                s !== p.status && <button key={s} onClick={() => handleStatusChange(s as any)}>Marcar como {s}</button>
+              {([
+                { id: 'active', label: 'Activo' },
+                { id: 'paused', label: 'Pausado' },
+                { id: 'delivered', label: 'Entregado' },
+                { id: 'archived', label: 'Archivado' },
+              ]).filter(s => s.id !== p.status).map(s => (
+                <button key={s.id} onClick={() => handleStatusChange(s.id as any)}>Marcar como {s.label}</button>
               ))}
             </div>
           </Card>

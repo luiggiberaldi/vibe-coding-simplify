@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Client, Project, Entry, Task, Idea, Note } from '../types';
+import { Client, Project, Entry, Task, Idea, Note, ProjectPhase, ProjectPayment } from '../types';
 import { generateId } from '../utils/generators';
 
 type EntityWithTimestamps = { id: string; createdAt: string; updatedAt: string };
@@ -10,6 +10,14 @@ type CreateInput<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 function now() {
   return new Date().toISOString();
 }
+
+const PHASE_ORDER: ProjectPhase[] = ['demo', 'mvp', 'halfway', 'delivered'];
+const PHASE_PERCENTAGES: Record<ProjectPhase, number> = {
+  demo: 0,
+  mvp: 0.30,
+  halfway: 0.60,
+  delivered: 1.0,
+};
 
 function addEntity<T extends EntityWithTimestamps>(
   arr: T[], data: CreateInput<T>
@@ -45,6 +53,7 @@ interface AppState {
   updateProject: (id: string, project: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   updateProjectStatus: (id: string, status: Project['status']) => void;
+  advanceProjectPhase: (id: string) => void;
   reorderProjects: (activeId: string, overId: string) => void;
 
   addEntry: (entry: CreateInput<Entry>) => void;
@@ -100,7 +109,14 @@ const useAppStore = create<AppState>()(
         const id = generateId();
         const timestamp = now();
         set(state => {
-          state.projects.push({ ...data, id, createdAt: timestamp, updatedAt: timestamp } as Project);
+          state.projects.push({ 
+            ...data, 
+            id, 
+            createdAt: timestamp, 
+            updatedAt: timestamp,
+            phase: 'demo',
+            payments: [],
+          } as Project);
           state.lastModifiedAt = timestamp;
         });
         return id;
@@ -118,6 +134,37 @@ const useAppStore = create<AppState>()(
       updateProjectStatus: (id, status) => set(state => {
         const p = state.projects.find(p => p.id === id);
         if (p) { p.status = status; p.updatedAt = now(); }
+        state.lastModifiedAt = now();
+      }),
+      advanceProjectPhase: (id) => set(state => {
+        const project = state.projects.find(p => p.id === id);
+        if (!project) return;
+        
+        const currentPhaseIndex = PHASE_ORDER.indexOf(project.phase);
+        if (currentPhaseIndex === -1 || currentPhaseIndex >= PHASE_ORDER.length - 1) return;
+        
+        const nextPhase = PHASE_ORDER[currentPhaseIndex + 1];
+        const previousPhase = project.phase;
+        
+        // Calculate payment amount for the phase we're moving TO
+        const totalPrice = project.price || 0;
+        const previousPaid = PHASE_PERCENTAGES[previousPhase] * totalPrice;
+        const nextPaid = PHASE_PERCENTAGES[nextPhase] * totalPrice;
+        const paymentAmount = nextPaid - previousPaid;
+        
+        project.phase = nextPhase;
+        project.updatedAt = now();
+        project.payments.push({
+          phase: nextPhase,
+          amount: paymentAmount,
+          date: now(),
+        });
+        
+        // If phase reaches 'delivered', also update status
+        if (nextPhase === 'delivered') {
+          project.status = 'delivered';
+        }
+        
         state.lastModifiedAt = now();
       }),
       reorderProjects: (activeId, overId) => set(state => {
@@ -228,14 +275,30 @@ const useAppStore = create<AppState>()(
     })),
     {
       name: 'pf-pro-v1',
-      version: 1,
+      version: 2,
       migrate: (persistedState: any, version: number) => {
         if (version === 0) {
           const s = persistedState?.state ?? persistedState;
           return {
             ...s,
             clients: s.clients?.map((c: any) => ({ ...c, color: c.color || undefined })) || [],
-            projects: s.projects?.map((p: any) => ({ ...p, currency: p.currency || 'USD' })) || [],
+            projects: s.projects?.map((p: any) => ({ 
+              ...p, 
+              currency: p.currency || 'USD',
+              phase: p.phase || 'demo',
+              payments: p.payments || [],
+            })) || [],
+          };
+        }
+        if (version === 1) {
+          const s = persistedState?.state ?? persistedState;
+          return {
+            ...s,
+            projects: s.projects?.map((p: any) => ({ 
+              ...p, 
+              phase: p.phase || 'demo',
+              payments: p.payments || [],
+            })) || [],
           };
         }
         return persistedState;
