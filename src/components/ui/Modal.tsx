@@ -21,11 +21,12 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      onClose();
+      onCloseRef.current();
       return;
     }
 
@@ -48,11 +49,10 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
         }
       }
     }
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
 
@@ -69,7 +69,6 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
-      previousFocusRef.current?.focus();
     };
   }, [isOpen, handleKeyDown]);
 

@@ -16,8 +16,12 @@ interface CommandItem {
 
 export const CommandPalette: React.FC = () => {
   const navigate = useNavigate();
-  const { clients, projects, ideas, notes } = useAppStore();
-  const { searchOpen, setSearchOpen } = useUIStore();
+  const clients = useAppStore(s => s.clients);
+  const projects = useAppStore(s => s.projects);
+  const ideas = useAppStore(s => s.ideas);
+  const notes = useAppStore(s => s.notes);
+  const searchOpen = useUIStore(s => s.searchOpen);
+  const setSearchOpen = useUIStore(s => s.setSearchOpen);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);

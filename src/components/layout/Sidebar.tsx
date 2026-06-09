@@ -7,7 +7,10 @@ import { RatesPanel } from '../ui/RatesPanel';
 import styles from './Sidebar.module.css';
 
 export const Sidebar: React.FC = () => {
-  const { theme, toggleTheme, isSidebarOpen, toggleSidebar } = useUIStore();
+  const theme = useUIStore(s => s.theme);
+  const toggleTheme = useUIStore(s => s.toggleTheme);
+  const isSidebarOpen = useUIStore(s => s.isSidebarOpen);
+  const toggleSidebar = useUIStore(s => s.toggleSidebar);
   const isMobile = useIsMobile();
 
   return (

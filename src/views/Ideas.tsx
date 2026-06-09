@@ -22,7 +22,7 @@ export const Ideas: React.FC = () => {
   const deleteIdea = useAppStore(s => s.deleteIdea);
   const convertIdeaToProject = useAppStore(s => s.convertIdeaToProject);
   const addProject = useAppStore(s => s.addProject);
-  const { addToast } = useUIStore();
+  const addToast = useUIStore(s => s.addToast);
   const confirm = useConfirm();
 
   const [search, setSearch] = useState('');

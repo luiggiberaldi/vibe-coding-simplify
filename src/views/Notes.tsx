@@ -22,7 +22,7 @@ export const Notes: React.FC = () => {
   const addNote = useAppStore(s => s.addNote);
   const updateNote = useAppStore(s => s.updateNote);
   const deleteNote = useAppStore(s => s.deleteNote);
-  const { addToast } = useUIStore();
+  const addToast = useUIStore(s => s.addToast);
   const confirm = useConfirm();
 
   const [search, setSearch] = useState('');

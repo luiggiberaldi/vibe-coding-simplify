@@ -98,7 +98,9 @@ export const Projects: React.FC = () => {
   const updateProject = useAppStore(s => s.updateProject);
   const updateProjectStatus = useAppStore(s => s.updateProjectStatus);
   const reorderProjects = useAppStore(s => s.reorderProjects);
-  const { projectsViewMode, setProjectsViewMode, addToast } = useUIStore();
+  const projectsViewMode = useUIStore(s => s.projectsViewMode);
+  const setProjectsViewMode = useUIStore(s => s.setProjectsViewMode);
+  const addToast = useUIStore(s => s.addToast);
   const confirm = useConfirm();
 
   const [filter, setFilter] = useState('all');

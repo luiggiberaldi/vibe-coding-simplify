@@ -79,7 +79,7 @@ export const ProjectDetail: React.FC = () => {
   const toggleTaskCompleted = useAppStore(s => s.toggleTaskCompleted);
   const startTaskTimer = useAppStore(s => s.startTaskTimer);
   const stopTaskTimer = useAppStore(s => s.stopTaskTimer);
-  const { addToast } = useUIStore();
+  const addToast = useUIStore(s => s.addToast);
   const confirm = useConfirm();
 
   const [activeTab, setActiveTab] = useState<'entries' | 'tasks'>('entries');
