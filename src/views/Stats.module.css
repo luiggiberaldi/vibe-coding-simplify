@@ -1,0 +1,58 @@
+.container { display: flex; flex-direction: column; gap: var(--space-4); }
+
+.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.header h1 { margin: 0; font-size: var(--text-xl); }
+.currencySelect {
+  appearance: none;
+  background-color: var(--color-surface-2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  padding-right: 32px;
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-height: 40px;
+}
+.currencySelect:hover {
+  border-color: var(--color-primary);
+}
+.currencySelect:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+.kpiCard { padding: var(--space-3); }
+.label { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-1); }
+.value { font-size: var(--text-lg); font-weight: 700; font-family: var(--font-display); color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.charts { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+.chartCard { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; padding: var(--space-3); }
+.chartCard h3 { align-self: flex-start; margin-top: 0; margin-bottom: var(--space-3); width: 100%; font-size: var(--text-base); }
+
+.donutContainer { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+.donutLegend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); font-size: var(--text-xs); }
+
+.table { width: 100%; border-collapse: collapse; text-align: left; }
+.table th { padding: var(--space-2); border-bottom: 1px solid var(--color-border); color: var(--color-text-muted); font-weight: 500; font-size: var(--text-xs); }
+.table td { padding: var(--space-2); border-bottom: 1px solid var(--color-divider); font-size: var(--text-xs); }
+.table tr:last-child td { border-bottom: none; }
+
+@media (min-width: 768px) {
+  .container { gap: var(--space-6); }
+  .kpis { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+  .kpiCard { padding: var(--space-4); }
+  .label { font-size: var(--text-sm); }
+  .value { font-size: var(--text-xl); }
+  .charts { grid-template-columns: 2fr 1fr; gap: var(--space-6); }
+  .chartCard { min-height: 350px; padding: var(--space-4); }
+  .chartCard h3 { font-size: var(--text-lg); }
+  .table th, .table td { padding: var(--space-3); font-size: var(--text-sm); }
+}

@@ -1,0 +1,78 @@
+:root {
+  /* Superficies */
+  --color-bg:              #0f1117;
+  --color-surface:         #161b22;
+  --color-surface-2:       #1c2128;
+  --color-surface-offset:  #21262d;
+  --color-border:          #30363d;
+  --color-divider:         #21262d;
+
+  /* Texto */
+  --color-text:            #e6edf3;
+  --color-text-muted:      #8b949e;
+  --color-text-faint:      #484f58;
+
+  /* Acento primario */
+  --color-primary:         #58a6ff;
+  --color-primary-hover:   #388bfd;
+  --color-primary-active:  #1f6feb;
+  --color-primary-bg:      rgba(88, 166, 255, 0.1);
+
+  /* Estados de proyecto */
+  --color-active:          #3fb950;
+  --color-paused:          #d29922;
+  --color-delivered:       #58a6ff;
+  --color-archived:        #484f58;
+
+  /* Tipos de entrada */
+  --color-entry-note:       #58a6ff;
+  --color-entry-bug:        #f85149;
+  --color-entry-suggestion: #d29922;
+  --color-entry-change:     #db6d28;
+  --color-entry-milestone:  #3fb950;
+  --color-entry-feedback:   #bc8cff;
+
+  /* Severidad */
+  --color-priority-low:    #3fb950;
+  --color-priority-medium: #d29922;
+  --color-priority-high:   #f85149;
+
+  /* Sistema */
+  --color-success:         #3fb950;
+  --color-warning:         #d29922;
+  --color-error:           #f85149;
+  --color-info:            #58a6ff;
+
+  /* Radios y sombras */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.6);
+
+  /* Transiciones */
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] {
+  --color-bg:             #f6f8fa;
+  --color-surface:        #ffffff;
+  --color-surface-2:      #f6f8fa;
+  --color-surface-offset: #eaeef2;
+  --color-border:         #d0d7de;
+  --color-divider:        #eaeef2;
+  --color-text:           #1f2328;
+  --color-text-muted:     #636c76;
+  --color-text-faint:     #9198a1;
+  --color-primary:        #0969da;
+  --color-primary-hover:  #0860ca;
+  --color-primary-active: #0757ba;
+  --color-primary-bg:     rgba(9, 105, 218, 0.08);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.14);
+}

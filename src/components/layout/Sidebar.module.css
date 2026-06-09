@@ -1,0 +1,113 @@
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.brand {
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.brand svg { width: 28px; height: 28px; color: var(--color-primary); }
+
+.nav {
+  padding: var(--space-3) 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  transition: all var(--transition);
+  text-decoration: none;
+  min-height: 44px;
+}
+.navItem:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface-offset);
+}
+.navItem.active {
+  color: var(--color-primary);
+  background-color: var(--color-primary-bg);
+  border-right: 3px solid var(--color-primary);
+}
+
+.footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.themeToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-weight: 500;
+  transition: color var(--transition);
+  min-height: 44px;
+}
+.themeToggle:hover {
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  }
+  .overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .navItem {
+    padding: var(--space-3) var(--space-4);
+  }
+  .brand {
+    padding: var(--space-4);
+  }
+  .footer {
+    padding: var(--space-3) var(--space-4);
+  }
+}

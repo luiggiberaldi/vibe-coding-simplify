@@ -1,0 +1,146 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.header h1 {
+  font-size: var(--text-xl);
+  margin: 0;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.kpiCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.kpiIcon {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-2);
+  display: flex;
+  flex-shrink: 0;
+}
+
+.kpiIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kpiValue {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.kpiLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.chartCard {
+  padding: var(--space-4);
+  min-height: 200px;
+}
+
+.sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-3) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-3);
+  min-height: 44px;
+}
+.listItem:last-child {
+  border-bottom: none;
+}
+
+.itemMeta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.projectLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.projectLink:hover .listItem {
+  background-color: var(--color-surface-offset);
+}
+
+.projectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .kpiGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+  }
+  .kpiCard {
+    padding: var(--space-4);
+  }
+  .kpiIcon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .kpiValue {
+    font-size: var(--text-xl);
+  }
+  .kpiLabel {
+    font-size: var(--text-sm);
+  }
+  .chartsRow {
+    grid-template-columns: 3fr 2fr;
+  }
+  .sections {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+}
